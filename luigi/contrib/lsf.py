@@ -84,7 +84,7 @@ def track_job(job_id):
     cmd = "bjobs -noheader -o stat {}".format(job_id)
     track_job_proc = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, shell=True)
-    status = track_job_proc.communicate()[0].strip('\n')
+    status = str(track_job_proc.communicate()[0]).strip('\n')
     return status
 
 
@@ -214,7 +214,7 @@ class LSFJobTask(luigi.Task):
             open(self.job_file, "w").write(dump_inst)
 
         else:
-            pickle.dump(self, open(self.job_file, "w"))
+            pickle.dump(self, open(self.job_file, "wb"))
 
     def _run_job(self):
         """
@@ -262,7 +262,7 @@ class LSFJobTask(luigi.Task):
         # So get the number in those first brackets.
         # I cannot think of a better workaround that leaves logic on the Task side of things.
         LOGGER.info("### JOB SUBMISSION OUTPUT: %s", str(output))
-        self.job_id = int(output.split("<")[1].split(">")[0])
+        self.job_id = int(str(output).split("<")[1].split(">")[0])
         LOGGER.info(
             "Job %ssubmitted as job %s",
             self.job_name_flag + ' ',
